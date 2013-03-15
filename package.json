@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git@github.com:serby/evnet"
   },
-  "main": "",
+  "main": "./evnet.js",
   "scripts": {
     "test": "make test",
     "prepublish": "make qa && npm prune"
