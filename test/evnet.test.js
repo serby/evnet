@@ -1,5 +1,3 @@
-var should = require('should')
-
 describe('evnet', function () {
 
   function rndPort() {
@@ -35,7 +33,6 @@ describe('evnet', function () {
         , port = rndPort()
         , server = evnet.startServer('0.0.0.0', port, port + 1)
         , e = evnet('0.0.0.0', port, port + 1)
-
       var recieved = []
       e.on('HELLO', function (data) {
         recieved.push(data)
