@@ -1,47 +1,54 @@
 var zeromq = require('zmq')
   , EventEmitter = require('events').EventEmitter
 
-module.exports = function evnet(connectionUri, cb) {
-  var pubSocket = zeromq.socket('pub')
+module.exports = evnet
+
+function startServer(ip, repPort, pubPort) {
   var self = new EventEmitter()
+    , repSocket = zeromq.socket('rep')
+    , pubSocket = zeromq.socket('pub')
 
-  pubSocket.bind(connectionUri, function(error) {
+  repSocket.bindSync('tcp://' + ip + ':' + repPort)
+  pubSocket.bindSync('tcp://' + ip + ':' + pubPort)
 
-    if (error) {
-      if (error.message === 'Invalid argument') {
-        error = new Error('Invalid connection URI \'' + connectionUri + '\'')
-      }
-      return cb(error)
-    }
-
-    self.emit('connect', connectionUri)
-
-    function emit(eventName, data) {
-      var message = JSON.stringify(data)
-      pubSocket.send(eventName + message)
-    }
-
-    function on(eventName, fn) {
-      var subSocket = zeromq.socket('sub')
-      subSocket.connect(connectionUri)
-      subSocket.subscribe(eventName)
-      subSocket.on('message', function(data) {
-        fn(JSON.parse(data.slice(eventName.length).toString()))
-      })
-    }
-
-    function close() {
-      pubSocket.close()
-    }
-
-    self.on = on
-
-    if (typeof cb === 'function') {
-      cb(null,
-      { on: on
-      , emit: emit
-      , close: close })
-    }
+  repSocket.on('message', function (data) {
+    self.emit('message', data.toString())
+    repSocket.send(0)
+    pubSocket.send(data)
   })
+
+  function close() {
+    repSocket.close()
+    pubSocket.close()
+  }
+  self.close = close
+  return self
+}
+evnet.startServer = startServer
+
+function evnet(ip, reqPort, subPort) {
+  var reqSocket = zeromq.socket('req')
+
+  reqSocket.connect('tcp://' + ip + ':' + reqPort)
+
+  var self = {}
+
+  function emit(eventName, data) {
+    var message = JSON.stringify(data)
+    reqSocket.send(eventName + message)
+  }
+
+  function on(eventName, fn) {
+    var subSocket = zeromq.socket('sub')
+    subSocket.connect('tcp://' + ip + ':' + subPort)
+    subSocket.subscribe(eventName)
+    subSocket.on('message', function(data) {
+      fn(JSON.parse(data.slice(eventName.length).toString()))
+    })
+  }
+
+  self.emit = emit
+  self.on = on
+
   return self
 }
