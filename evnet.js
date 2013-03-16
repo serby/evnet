@@ -5,7 +5,7 @@ module.exports = evnet
 
 function startServer(ip, repPort, pubPort) {
   var self = new EventEmitter()
-    , repSocket = zeromq.socket('rep')
+    , repSocket = zeromq.socket('pull')
     , pubSocket = zeromq.socket('pub')
 
   repSocket.bindSync('tcp://' + ip + ':' + repPort)
@@ -13,7 +13,6 @@ function startServer(ip, repPort, pubPort) {
 
   repSocket.on('message', function (data) {
     self.emit('message', data.toString())
-    repSocket.send(0)
     pubSocket.send(data)
   })
 
@@ -27,7 +26,7 @@ function startServer(ip, repPort, pubPort) {
 evnet.startServer = startServer
 
 function evnet(ip, reqPort, subPort) {
-  var reqSocket = zeromq.socket('req')
+  var reqSocket = zeromq.socket('push')
 
   reqSocket.connect('tcp://' + ip + ':' + reqPort)
 
