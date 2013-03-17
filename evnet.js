@@ -3,13 +3,31 @@ var zeromq = require('zmq')
 
 module.exports = evnet
 
-function startServer(ip, repPort, pubPort) {
+function setPorts(repPort, pubPort) {
+  if (typeof repPort === 'undefined') {
+    repPort = 9873
+  }
+
+  if (repPort === pubPort) {
+    throw new Error('Must provide two different ports')
+  }
+
+  if (typeof pubPort === 'undefined') {
+    pubPort = repPort + 1
+  }
+  return [repPort, pubPort]
+}
+
+function start(ip, repPort, pubPort) {
+
   var self = new EventEmitter()
     , repSocket = zeromq.socket('pull')
     , pubSocket = zeromq.socket('pub')
 
-  repSocket.bindSync('tcp://' + ip + ':' + repPort)
-  pubSocket.bindSync('tcp://' + ip + ':' + pubPort)
+  self.ports = setPorts(repPort, pubPort)
+
+  repSocket.bindSync('tcp://' + ip + ':' + self.ports[0])
+  pubSocket.bindSync('tcp://' + ip + ':' + self.ports[1])
 
   repSocket.on('message', function (data) {
     self.emit('message', data.toString())
@@ -20,17 +38,20 @@ function startServer(ip, repPort, pubPort) {
     repSocket.close()
     pubSocket.close()
   }
+
   self.close = close
+
   return self
 }
-evnet.startServer = startServer
+evnet.start = start
 
 function evnet(ip, reqPort, subPort) {
   var reqSocket = zeromq.socket('push')
+    , self = {}
 
-  reqSocket.connect('tcp://' + ip + ':' + reqPort)
+  self.ports = setPorts(reqPort, subPort)
 
-  var self = {}
+  reqSocket.connect('tcp://' + ip + ':' + self.ports[0])
 
   function emit(eventName, data) {
     var message = JSON.stringify(data)
@@ -39,7 +60,7 @@ function evnet(ip, reqPort, subPort) {
 
   function on(eventName, fn) {
     var subSocket = zeromq.socket('sub')
-    subSocket.connect('tcp://' + ip + ':' + subPort)
+    subSocket.connect('tcp://' + ip + ':' + self.ports[1])
     subSocket.subscribe(eventName)
     subSocket.on('message', function(data) {
       fn(JSON.parse(data.slice(eventName.length).toString()))
