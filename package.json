@@ -3,7 +3,7 @@
   "name": "evnet",
   "description": "ZeroMQ based event dispatcher",
   "version": "0.1.0",
-  "tags": ['ZeroMQ', 'zmq', 'pub sub', 'network', 'event'],
+  "tags": ["ZeroMQ", "zmq", "pub sub", "network", "event"],
   "repository": {
     "type": "git",
     "url": "git@github.com:serby/evnet"
