@@ -6,6 +6,19 @@ ZeroMQ based event dispatcher
 
 ## Installation
 
+### ZeroMQ Installation
+
+#### Mac OsX
+
+      brew install zmq
+
+#### Debian derivatives; Ubuntu etc
+
+      sudo apt-get install libzmq1
+      sudo apt-get install libzmq-dev
+
+## NPM Install
+
       npm install evnet
 
 ## Usage
