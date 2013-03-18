@@ -119,8 +119,8 @@ describe('evnet', function () {
 
       var evnet = require('../evnet')
         , port = rndPort()
-        , server = evnet.start('0.0.0.0', port, port + 15)
-        , e = evnet('0.0.0.0', port, port + 15)
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
 
       e.on('HELLO', function (data) {
         data.should.equal('world')
@@ -134,8 +134,8 @@ describe('evnet', function () {
     it('should hear an multiple emitted event', function (done) {
       var evnet = require('../evnet')
         , port = rndPort()
-        , server = evnet.start('0.0.0.0', port, port + 15)
-        , e = evnet('0.0.0.0', port, port + 15)
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
       var recieved = []
       e.on('HELLO', function (data) {
         recieved.push(data)
@@ -155,8 +155,8 @@ describe('evnet', function () {
     it('should be able to pass JavaScript objects', function (done) {
       var evnet = require('../evnet')
         , port = rndPort()
-        , server = evnet.start('0.0.0.0', port, port + 15)
-        , e = evnet('0.0.0.0', port, port + 15)
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
 
       e.on('HELLO', function (data) {
         data.should.eql({ foo: 'bar' })
@@ -171,8 +171,8 @@ describe('evnet', function () {
     it('should throw error if JavaScript object has a circular reference', function () {
       var evnet = require('../evnet')
         , port = rndPort()
-        , server = evnet.start('0.0.0.0', port, port + 15)
-        , e = evnet('0.0.0.0', port, port + 15)
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
 
       var a = { foo: 1 }
         , b = { a: a }
@@ -191,8 +191,8 @@ describe('evnet', function () {
     it('should all receive emitted events', function (done) {
       var evnet = require('../evnet')
         , port = rndPort()
-        , server = evnet.start('0.0.0.0', port, port + 15)
-        , e = evnet('0.0.0.0', port, port + 15)
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
 
       var recieved = []
 
