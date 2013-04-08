@@ -102,6 +102,25 @@ describe('evnet', function () {
     e.emit('hello', 'world')
   })
 
+  it('should emit diagnostic messages from server', function () {
+
+    var evnet = require('../evnet')
+      , port = rndPort()
+      , server = evnet.start('0.0.0.0', port, port + 15)
+      , e = evnet('0.0.0.0')
+
+    server.on('message', function (eventName, data) {
+      eventName.should.equal('hello')
+      data.should.equal('world')
+    })
+
+    e.emit('hello', 'world')
+
+    server.close()
+
+  })
+
+
   it('should throw an error if ports are the same', function () {
 
     var evnet = require('../evnet')

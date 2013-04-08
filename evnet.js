@@ -30,7 +30,10 @@ function start(ip, repPort, pubPort) {
   pubSocket.bindSync('tcp://' + ip + ':' + self.ports[1])
 
   repSocket.on('message', function (data) {
-    self.emit('message', data.toString())
+    var stringData = data.toString()
+      , seperator = stringData.indexOf('\0')
+    self.emit('message', stringData.substring(0, seperator),
+      stringData.substring(seperator))
     pubSocket.send(data)
   })
 
