@@ -55,7 +55,7 @@ function evnet(ip, reqPort, subPort) {
 
   function emit(eventName, data) {
     var message = JSON.stringify(data)
-    reqSocket.send(eventName + message)
+    reqSocket.send(eventName + '\0' + message)
   }
 
   function on(eventName, fn) {
@@ -63,7 +63,7 @@ function evnet(ip, reqPort, subPort) {
     subSocket.connect('tcp://' + ip + ':' + self.ports[1])
     subSocket.subscribe(eventName)
     subSocket.on('message', function(data) {
-      fn(JSON.parse(data.slice(eventName.length).toString()))
+      fn(JSON.parse(data.slice(eventName.length + 1).toString()))
     })
   }
 
