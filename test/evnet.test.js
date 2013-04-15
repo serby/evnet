@@ -170,6 +170,54 @@ describe('evnet', function () {
 
     })
 
+    it('should allow undefined to be emitted', function (done) {
+      var evnet = require('../evnet')
+        , port = rndPort()
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
+
+      e.on('foo', function (data) {
+        true.should.eql(typeof data === 'undefined')
+        server.close()
+        done()
+      })
+
+      e.emit('foo')
+
+    })
+
+    it('should allow null to be emitted', function (done) {
+      var evnet = require('../evnet')
+        , port = rndPort()
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
+
+      e.on('foo', function (data) {
+        true.should.eql(data === null)
+        server.close()
+        done()
+      })
+
+      e.emit('foo', null)
+
+    })
+
+    it('should allow empty string\'\' to be emitted', function (done) {
+      var evnet = require('../evnet')
+        , port = rndPort()
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
+
+      e.on('foo', function (data) {
+        true.should.eql(data === '')
+        server.close()
+        done()
+      })
+
+      e.emit('foo', '')
+
+    })
+
 
     it('should be able to pass JavaScript objects', function (done) {
       var evnet = require('../evnet')
