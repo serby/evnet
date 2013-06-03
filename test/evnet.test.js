@@ -254,6 +254,7 @@ describe('evnet', function () {
 
     })
   })
+
   describe('on()', function () {
     it('should all receive emitted events', function (done) {
       var evnet = require('../evnet')
@@ -277,6 +278,15 @@ describe('evnet', function () {
       e.on('HELLO', onMessage)
 
       delayEmit(e, 'HELLO', 'world')
+    })
+  })
+
+  describe('close()', function () {
+    it('should stop unestablished connections lingering', function () {
+      var evnet = require('../evnet')
+        , port = rndPort()
+        , e = evnet('0.0.0.0', port)
+      e.close()
     })
   })
 })

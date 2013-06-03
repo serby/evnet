@@ -48,14 +48,20 @@ function start(ip, repPort, pubPort) {
 }
 evnet.start = start
 
+// Connect to the evnet server {ip} so you can listen for events
 function evnet(ip, reqPort, subPort) {
+
+  // Connection to the event bus server
   var reqSocket = zeromq.socket('push')
+    // The connected subs
+    , subSockets = []
     , self = {}
 
   self.ports = setPorts(reqPort, subPort)
 
   reqSocket.connect('tcp://' + ip + ':' + self.ports[0])
 
+  // Sends an event to the server to broadcast
   function emit(eventName, data) {
     if (typeof data === 'undefined') {
       reqSocket.send(eventName + '\0')
@@ -65,8 +71,12 @@ function evnet(ip, reqPort, subPort) {
     }
   }
 
+  // Listen to events broadcast from the server
   function on(eventName, fn) {
+    // Create a sub for each eventName
     var subSocket = zeromq.socket('sub')
+    //  Track so we can close
+    subSockets.push(subSocket)
     subSocket.connect('tcp://' + ip + ':' + self.ports[1])
     subSocket.subscribe(eventName)
     subSocket.on('message', function(data) {
@@ -81,6 +91,15 @@ function evnet(ip, reqPort, subPort) {
     })
   }
 
+  // Close up any open connections
+  function close() {
+    reqSocket.close()
+    subSockets.forEach(function(subSocket) {
+      subSocket.close()
+    })
+  }
+
+  self.close = close
   self.emit = emit
   self.on = on
 
