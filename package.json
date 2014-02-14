@@ -10,6 +10,9 @@
     "network",
     "event"
   ],
+  "publishConfig": {
+    "registry":"http://registry.npmjs.org"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:serby/evnet"
