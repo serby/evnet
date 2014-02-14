@@ -4,5 +4,5 @@ node_js:
   - 0.10
   - 0.11
 install:
-  - sudo apt-get install libzmq1
-  - sudo apt-get install libzmq-dev
+  - sudo apt-get -f -y --reinstall install libzmq1
+  - sudo apt-get -f -y --reinstall install libzmq-dev
