@@ -2,7 +2,7 @@
   "author": "Paul Serby <paul@serby.net>",
   "name": "evnet",
   "description": "ZeroMQ based event dispatcher",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "tags": [
     "ZeroMQ",
     "zmq",
@@ -11,7 +11,7 @@
     "event"
   ],
   "publishConfig": {
-    "registry":"http://registry.npmjs.org"
+    "registry": "http://registry.npmjs.org"
   },
   "repository": {
     "type": "git",
