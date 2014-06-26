@@ -53,6 +53,19 @@ describe('evnet', function () {
       }).should.throwError('Must provide two different ports')
 
     })
+
+    describe('close()', function () {
+
+      it('should emit a close event', function (done) {
+        var evnet = require('../evnet')
+          , port = rndPort()
+          , server = evnet.start('0.0.0.0', port)
+
+        server.on('close', done)
+        server.close()
+      })
+
+    })
   })
 
   it('should connect given two ports', function () {
@@ -278,6 +291,35 @@ describe('evnet', function () {
       e.on('HELLO', onMessage)
 
       delayEmit(e, 'HELLO', 'world')
+    })
+  })
+
+  describe('once()', function () {
+    it('should only recieve events once', function (done) {
+      var evnet = require('../evnet')
+        , port = rndPort()
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
+        , numberTimesEmitted = 0
+
+      server.on('close', function () {
+        numberTimesEmitted.should.equal(1)
+        done()
+      })
+
+      function onMessage () {
+        numberTimesEmitted += 1
+      }
+
+      e.once('HELLO', onMessage)
+
+      // Emit 2 events
+      e.emit('HELLO')
+      e.emit('HELLO')
+
+      setTimeout(function () {
+        server.close()
+      }, 10)
     })
   })
 
