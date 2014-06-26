@@ -42,6 +42,18 @@ e.on('HELLO', function (data) {
 
 ```
 
+### Listen once
+
+```js
+var evnet = require('../evnet')
+  , e = evnet('0.0.0.0')
+
+e.once('HELLO', function (data) {
+  console.log('I got this:', data)
+})
+
+```
+
 ### Emit
 
 ```js
@@ -53,6 +65,7 @@ e.emit('HELLO', [{ foo: 'World' }])
 
 ## Credits
 [Paul Serby](https://github.com/serby/) follow me on twitter [@serby](http://twitter.com/serby)
+[Dom Harrington](https://github.com/domharrington/) follow me on twitter [@domharrington](http://twitter.com/domharrington)
 
 ## Licence
 Licensed under the [New BSD License](http://opensource.org/licenses/bsd-license.php)

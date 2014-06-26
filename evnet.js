@@ -38,6 +38,7 @@ function start(ip, repPort, pubPort) {
   })
 
   function close() {
+    self.emit('close')
     repSocket.close()
     pubSocket.close()
   }
@@ -89,6 +90,25 @@ function evnet(ip, reqPort, subPort) {
 
       fn(message)
     })
+
+    return subSocket
+  }
+
+  // Listen to events once
+  function once(eventName, fn) {
+    var called = false
+      , subSocket
+
+    function onceFn() {
+      if (called === true) {
+        subSocket.close()
+        return
+      }
+      called = true
+      fn.apply(null, arguments)
+    }
+
+    subSocket = on(eventName, onceFn)
   }
 
   // Close up any open connections
@@ -102,6 +122,7 @@ function evnet(ip, reqPort, subPort) {
   self.close = close
   self.emit = emit
   self.on = on
+  self.once = once
 
   return self
 }
