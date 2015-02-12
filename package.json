@@ -23,7 +23,7 @@
     "prepublish": "make qa && npm prune"
   },
   "engines": {
-    "node": ">=0.8"
+    "node": ">=0.10"
   },
   "dependencies": {
     "zmq": "^2.10.0"
