@@ -19,8 +19,10 @@
   },
   "main": "./evnet.js",
   "scripts": {
-    "test": "make test",
-    "prepublish": "make qa && npm prune"
+    "test": "mocha -r should -R spec",
+    "lint": "jshint .",
+    "pretest": "npm run lint",
+    "prepublish": "npm run lint && npm prune"
   },
   "engines": {
     "node": ">=0.10"
@@ -29,6 +31,7 @@
     "zmq": "^2.10.0"
   },
   "devDependencies": {
+    "jshint": "^2.6.0",
     "mocha": "~1.13.0",
     "should": "2"
   }
