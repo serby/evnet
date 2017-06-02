@@ -28,7 +28,7 @@
     "node": ">=0.10"
   },
   "dependencies": {
-    "zmq": "^2.10.0"
+    "zmq": "^2.15.3"
   },
   "devDependencies": {
     "jshint": "^2.6.0",
