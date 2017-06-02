@@ -10,9 +10,6 @@
     "network",
     "event"
   ],
-  "publishConfig": {
-    "registry": "http://registry.npmjs.org"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:serby/evnet"
@@ -25,7 +22,7 @@
     "prepublish": "npm run lint && npm prune"
   },
   "engines": {
-    "node": ">=0.10"
+    "node": ">=4"
   },
   "dependencies": {
     "zmq": "^2.15.3"
