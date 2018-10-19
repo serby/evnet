@@ -1,11 +1,9 @@
 {
   "author": "Paul Serby <paul@serby.net>",
   "name": "evnet",
-  "description": "ZeroMQ based event dispatcher",
+  "description": "A multi process, multi server Event dispatcher",
   "version": "0.3.1",
   "tags": [
-    "ZeroMQ",
-    "zmq",
     "pub sub",
     "network",
     "event"
@@ -17,15 +15,17 @@
   "main": "./evnet.js",
   "scripts": {
     "test": "mocha -r should -R spec",
-    "lint": "jshint .",
-    "pretest": "npm run lint",
-    "prepublish": "npm run lint && npm prune"
+    "lint": "jshint --reporter=unix .",
+    "pretest": "yarn run lint"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
+  "license": "ISC",
   "dependencies": {
-    "zmq": "^2.15.3"
+    "primus": "^7.2.3",
+    "primus-emitter": "^3.1.1",
+    "ws": "^6.1.0"
   },
   "devDependencies": {
     "jshint": "^2.6.0",

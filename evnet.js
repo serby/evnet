@@ -1,128 +1,68 @@
-var zeromq = require('zmq')
-  , EventEmitter = require('events').EventEmitter
+var Primus = require('primus')
+var EventEmitter = require('events').EventEmitter
+var http = require('http')
+var defaultPort = 9873
 
 module.exports = evnet
 
-function setPorts(repPort, pubPort) {
-  if (typeof repPort === 'undefined') {
-    repPort = 9873
-  }
-
-  if (repPort === pubPort) {
-    throw new Error('Must provide two different ports')
-  }
-
-  if (typeof pubPort === 'undefined') {
-    pubPort = repPort + 1
-  }
-  return [repPort, pubPort]
-}
-
-function start(ip, repPort, pubPort) {
-
+function start(ip, port) {
   var self = new EventEmitter()
-    , repSocket = zeromq.socket('pull')
-    , pubSocket = zeromq.socket('pub')
+  var server = http.createServer()
+  var primus = new Primus(server, {
+    iknowhttpsisbetter: true
+  })
 
-  self.ports = setPorts(repPort, pubPort)
-
-  repSocket.bindSync('tcp://' + ip + ':' + self.ports[0])
-  pubSocket.bindSync('tcp://' + ip + ':' + self.ports[1])
-
-  repSocket.on('message', function (data) {
-    var stringData = data.toString()
-      , seperator = stringData.indexOf('\0')
-    self.emit('message', stringData.substring(0, seperator),
-      stringData.substring(seperator))
-    pubSocket.send(data)
+  primus.on('connection', function (spark) {
+    spark.on('data', function (data) {
+      console.log('jim', data)
+      primus.write(data)
+    })
   })
 
   function close() {
     self.emit('close')
-    repSocket.close()
-    pubSocket.close()
+    primus.close()
   }
 
   self.close = close
-
+  server.listen(port || defaultPort)
   return self
 }
+
 evnet.start = start
 
 // Connect to the evnet server {ip} so you can listen for events
-function evnet(ip, reqPort, subPort) {
+function evnet(ip, port) {
+  if (port === undefined) {
+    port = defaultPort
+  }
+  var self = new EventEmitter()
+    , Socket = Primus.createSocket()
+    , client = new Socket('http://' + ip + ':' + port)
+    , originalEmit = self.emit.bind(self)
 
-  // Connection to the event bus server
-  var reqSocket = zeromq.socket('push')
-    // The connected subs
-    , subSockets = []
-    , self = {}
+  client.on('error', function (e) {
+    throw new Error(e)
+  })
 
-  self.ports = setPorts(reqPort, subPort)
-
-  reqSocket.connect('tcp://' + ip + ':' + self.ports[0])
+  client.on('data', function (data) {
+    originalEmit(data.name, data.data)
+  })
 
   // Sends an event to the server to broadcast
-  function emit(eventName, data) {
-    if (typeof data === 'undefined') {
-      reqSocket.send(eventName + '\0')
-    } else {
-      var message = JSON.stringify(data)
-      reqSocket.send(eventName + '\0' + message)
-    }
-  }
-
-  // Listen to events broadcast from the server
-  function on(eventName, fn) {
-    // Create a sub for each eventName
-    var subSocket = zeromq.socket('sub')
-    //  Track so we can close
-    subSockets.push(subSocket)
-    subSocket.connect('tcp://' + ip + ':' + self.ports[1])
-    subSocket.subscribe(eventName)
-    subSocket.on('message', function(data) {
-      var message = data.slice(eventName.length + 1).toString()
-      if (message.length > 0) {
-        message = JSON.parse(message)
-      } else {
-        message = undefined
-      }
-
-      fn(message)
-    })
-
-    return subSocket
-  }
-
-  // Listen to events once
-  function once(eventName, fn) {
-    var called = false
-      , subSocket
-
-    function onceFn() {
-      if (called === true) {
-        subSocket.close()
-        return
-      }
-      called = true
-      fn.apply(null, arguments)
-    }
-
-    subSocket = on(eventName, onceFn)
+  function emit(name, data) {
+    client.write({ name: name, data: data })
   }
 
   // Close up any open connections
   function close() {
-    reqSocket.close()
-    subSockets.forEach(function(subSocket) {
-      subSocket.close()
-    })
+    client.end()
   }
 
+  self.ports = [ port ]
   self.close = close
   self.emit = emit
-  self.on = on
-  self.once = once
+  self.off = self.removeEventListener
 
   return self
 }
