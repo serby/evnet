@@ -14,6 +14,9 @@
     "type": "git",
     "url": "git@github.com:serby/evnet"
   },
+  "files": [
+    "./evnet.js"
+  ],
   "main": "./evnet.js",
   "scripts": {
     "test": "mocha -r should -R spec",
@@ -28,8 +31,8 @@
     "zeromq": "^5.0.0"
   },
   "devDependencies": {
-    "jshint": "^2.6.0",
-    "mocha": "~1.13.0",
-    "should": "2"
+    "jshint": "^2.9.6",
+    "mocha": "^5.2.0",
+    "should": "^13.2.3"
   }
 }
