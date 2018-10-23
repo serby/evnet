@@ -14,7 +14,7 @@ describe('evnet', function () {
 
     it('should start a server given two ports', function () {
 
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port, port + 15)
 
@@ -24,7 +24,7 @@ describe('evnet', function () {
 
     it('should start a server given one port', function () {
 
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
 
@@ -35,7 +35,7 @@ describe('evnet', function () {
 
     it('should start a server on default port if none is given', function () {
 
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , server = evnet.start('0.0.0.0')
 
       server.ports.should.eql([9873, 9874])
@@ -45,7 +45,7 @@ describe('evnet', function () {
 
     it('should throw an error if ports are the same', function () {
 
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort();
 
       (function () {
@@ -57,7 +57,7 @@ describe('evnet', function () {
     describe('close()', function () {
 
       it('should emit a close event', function (done) {
-        var evnet = require('../evnet')
+        var evnet = require('..')
           , port = rndPort()
           , server = evnet.start('0.0.0.0', port)
 
@@ -70,7 +70,7 @@ describe('evnet', function () {
 
   it('should connect given two ports', function () {
 
-    var evnet = require('../evnet')
+    var evnet = require('..')
       , port = rndPort()
       , server = evnet.start('0.0.0.0', port, port + 15)
 
@@ -81,62 +81,76 @@ describe('evnet', function () {
 
   it('should connect given one port', function () {
 
-    var evnet = require('../evnet')
+    var evnet = require('..')
       , port = rndPort()
       , server = evnet.start('0.0.0.0', port)
-
-    evnet('0.0.0.0', port).ports.should.eql([port, port + 1])
+      , e = evnet('0.0.0.0', port)
+    e.ports.should.eql([port, port + 1])
     server.close()
-
+    e.close()
   })
 
   it('should connect on default port if none is given', function () {
 
-    var evnet = require('../evnet')
+    var evnet = require('..')
       , server = evnet.start('0.0.0.0')
-
-    evnet('0.0.0.0').ports.should.eql([9873, 9874])
+      , e = evnet('0.0.0.0')
+    e.ports.should.eql([9873, 9874])
     server.close()
-
+    e.close()
   })
 
   it('should connect only once server has started', function (done) {
 
-    var evnet = require('../evnet')
+    var evnet = require('..')
       , e = evnet('0.0.0.0')
       , server = evnet.start('0.0.0.0')
 
     e.on('hello', function(data) {
       data.should.equal('world')
-      done()
       server.close()
+      e.close()
+      done()
     })
 
     e.emit('hello', 'world')
   })
 
-  it('should emit diagnostic messages from server', function () {
-
-    var evnet = require('../evnet')
+  it('should emit diagnostic messages from server', function (done) {
+    var evnet = require('..')
       , port = rndPort()
-      , server = evnet.start('0.0.0.0', port, port + 15)
-      , e = evnet('0.0.0.0')
+      , server = evnet.start('0.0.0.0', port)
+      , e = evnet('0.0.0.0', port)
 
     server.on('message', function (eventName, data) {
       eventName.should.equal('hello')
       data.should.equal('world')
+      server.close()
+      e.close()
+      done()
     })
-
     e.emit('hello', 'world')
-
-    server.close()
-
   })
 
+  it('should emit structured messages from server', function (done) {
+    var evnet = require('..')
+      , port = rndPort()
+      , server = evnet.start('0.0.0.0', port)
+      , e = evnet('0.0.0.0', port)
+
+    server.on('message', function (eventName, data) {
+      eventName.should.deepEqual('hello')
+      data.should.eql({ a: 1, b: 'world' })
+      server.close()
+      e.close()
+      done()
+    })
+    e.emit('hello', { a: 1, b: 'world' })
+  })
 
   it('should throw an error if ports are the same', function () {
 
-    var evnet = require('../evnet')
+    var evnet = require('..')
       , port = rndPort();
 
     (function () {
@@ -149,7 +163,7 @@ describe('evnet', function () {
 
     it('should hear an emitted event', function (done) {
 
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -157,6 +171,7 @@ describe('evnet', function () {
       e.on('HELLO', function (data) {
         data.should.equal('world')
         server.close()
+        e.close()
         done()
       })
 
@@ -164,16 +179,18 @@ describe('evnet', function () {
     })
 
     it('should hear an multiple emitted event', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
-      var recieved = []
+        , recieved = []
+
       e.on('HELLO', function (data) {
         recieved.push(data)
         if (recieved.length === 2) {
-          recieved.should.include('world').include('foo')
+          recieved.should.containEql('world').containEql('foo')
           server.close()
+          e.close()
           done()
         }
       })
@@ -184,7 +201,7 @@ describe('evnet', function () {
     })
 
     it('should allow undefined to be emitted', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -192,15 +209,15 @@ describe('evnet', function () {
       e.on('foo', function (data) {
         true.should.eql(typeof data === 'undefined')
         server.close()
+        e.close()
         done()
       })
 
       e.emit('foo')
-
     })
 
     it('should allow null to be emitted', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -208,15 +225,15 @@ describe('evnet', function () {
       e.on('foo', function (data) {
         true.should.eql(data === null)
         server.close()
+        e.close()
         done()
       })
 
       e.emit('foo', null)
-
     })
 
     it('should allow empty string\'\' to be emitted', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -224,6 +241,7 @@ describe('evnet', function () {
       e.on('foo', function (data) {
         true.should.eql(data === '')
         server.close()
+        e.close()
         done()
       })
 
@@ -233,7 +251,7 @@ describe('evnet', function () {
 
 
     it('should be able to pass JavaScript objects', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -241,6 +259,7 @@ describe('evnet', function () {
       e.on('HELLO', function (data) {
         data.should.eql({ foo: 'bar' })
         server.close()
+        e.close()
         done()
       })
 
@@ -249,7 +268,7 @@ describe('evnet', function () {
     })
 
     it('should throw error if JavaScript object has a circular reference', function () {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -263,6 +282,7 @@ describe('evnet', function () {
         e.emit('HELLO', a)
       }).should.throwError('Converting circular structure to JSON', function () {
         server.close()
+        e.close()
       })
 
     })
@@ -270,7 +290,7 @@ describe('evnet', function () {
 
   describe('on()', function () {
     it('should all receive emitted events', function (done) {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -283,6 +303,7 @@ describe('evnet', function () {
         if (recieved.length === 2) {
           recieved.should.eql(['world', 'world'])
           server.close()
+          e.close()
           done()
         }
       }
@@ -295,8 +316,8 @@ describe('evnet', function () {
   })
 
   describe('once()', function () {
-    it('should only recieve events once', function (done) {
-      var evnet = require('../evnet')
+    it('should only receive events once', function (done) {
+      var evnet = require('..')
         , port = rndPort()
         , server = evnet.start('0.0.0.0', port)
         , e = evnet('0.0.0.0', port)
@@ -319,13 +340,14 @@ describe('evnet', function () {
 
       setTimeout(function () {
         server.close()
-      }, 250)
+        e.close()
+      }, 500)
     })
   })
 
   describe('close()', function () {
     it('should stop unestablished connections lingering', function () {
-      var evnet = require('../evnet')
+      var evnet = require('..')
         , port = rndPort()
         , e = evnet('0.0.0.0', port)
       e.close()

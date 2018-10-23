@@ -29,12 +29,14 @@ function start(ip, repPort, pubPort) {
   repSocket.bindSync('tcp://' + ip + ':' + self.ports[0])
   pubSocket.bindSync('tcp://' + ip + ':' + self.ports[1])
 
-  repSocket.on('message', function (data) {
-    var stringData = data.toString()
+  repSocket.on('message', function (packet) {
+    pubSocket.send(packet)
+    var stringData = packet.toString()
       , seperator = stringData.indexOf('\0')
-    self.emit('message', stringData.substring(0, seperator),
-      stringData.substring(seperator))
-    pubSocket.send(data)
+      , data = stringData.substring(seperator + 1)
+      , formatted
+    formatted = data ? JSON.parse(data) : data
+    self.emit('message', stringData.substring(0, seperator), formatted)
   })
 
   function close() {
@@ -57,6 +59,7 @@ function evnet(ip, reqPort, subPort) {
     // The connected subs
     , subSockets = []
     , self = {}
+    , listeners = {}
 
   self.ports = setPorts(reqPort, subPort)
 
@@ -74,6 +77,11 @@ function evnet(ip, reqPort, subPort) {
 
   // Listen to events broadcast from the server
   function on(eventName, fn) {
+    if (listeners[eventName]) {
+      listeners[eventName].push(fn)
+      return
+    }
+    listeners[eventName] = [ fn ]
     // Create a sub for each eventName
     var subSocket = zeromq.socket('sub')
     //  Track so we can close
@@ -87,8 +95,9 @@ function evnet(ip, reqPort, subPort) {
       } else {
         message = undefined
       }
-
-      fn(message)
+      listeners[eventName].forEach(function (fn) {
+        fn(message)
+      })
     })
 
     return subSocket
@@ -115,7 +124,9 @@ function evnet(ip, reqPort, subPort) {
   function close() {
     reqSocket.close()
     subSockets.forEach(function(subSocket) {
-      subSocket.close()
+      try {
+        subSocket.close()
+      } catch (e) {}
     })
   }
 
