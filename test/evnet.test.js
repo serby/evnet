@@ -319,7 +319,7 @@ describe('evnet', function () {
 
       setTimeout(function () {
         server.close()
-      }, 10)
+      }, 250)
     })
   })
 
