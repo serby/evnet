@@ -1,4 +1,4 @@
-var zeromq = require('zmq')
+var zeromq = require('zeromq')
   , EventEmitter = require('events').EventEmitter
 
 module.exports = evnet
