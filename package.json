@@ -2,7 +2,7 @@
   "author": "Paul Serby <paul@serby.net>",
   "name": "evnet",
   "description": "ZeroMQ based event dispatcher",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "tags": [
     "ZeroMQ",
     "zmq",
