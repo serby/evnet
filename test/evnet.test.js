@@ -35,24 +35,22 @@ describe('evnet', function () {
     })
 
     it('should start a server on default port if none is given', function () {
-
       var evnet = require('..')
         , server = evnet.start('0.0.0.0')
 
       server.ports.should.eql([9873, 9874])
       server.close()
-
     })
 
     it('should throw an error if ports are the same', function () {
-
       var evnet = require('..')
-        , port = rndPort();
-
+        , port = rndPort()
+        , e;
       (function () {
-        evnet.start('0.0.0.0', port, port)
-      }).should.throwError('Must provide two different ports')
-
+        e = evnet.start('0.0.0.0', port, port)
+      }).should.throwError('Must provide two different ports', function () {
+        e.close()
+      })
     })
 
     describe('close()', function () {
@@ -74,9 +72,12 @@ describe('evnet', function () {
     var evnet = require('..')
       , port = rndPort()
       , server = evnet.start('0.0.0.0', port, port + 15)
+      , e = evnet('0.0.0.0', port, port + 15)
 
-    evnet('0.0.0.0', port, port + 15).ports.should.eql([port, port + 15])
+    e.ports.should.eql([port, port + 15])
+    e.close()
     server.close()
+
 
   })
 
@@ -281,11 +282,9 @@ describe('evnet', function () {
 
       (function () {
         e.emit('HELLO', a)
-      }).should.throwError('Converting circular structure to JSON', function () {
-        server.close()
-        e.close()
-      })
-
+      }).should.throwError('Converting circular structure to JSON')
+      e.close()
+      server.close()
     })
   })
 

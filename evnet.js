@@ -21,10 +21,10 @@ function setPorts(repPort, pubPort) {
 function start(ip, repPort, pubPort) {
 
   var self = new EventEmitter()
-    , repSocket = zeromq.socket('pull')
-    , pubSocket = zeromq.socket('pub')
-
   self.ports = setPorts(repPort, pubPort)
+
+  var repSocket = zeromq.socket('pull')
+  var pubSocket = zeromq.socket('pub')
 
   repSocket.bindSync('tcp://' + ip + ':' + self.ports[0])
   pubSocket.bindSync('tcp://' + ip + ':' + self.ports[1])
@@ -54,14 +54,14 @@ evnet.start = start
 // Connect to the evnet server {ip} so you can listen for events
 function evnet(ip, reqPort, subPort) {
 
-  // Connection to the event bus server
-  var reqSocket = zeromq.socket('push')
+  var self = {
+      ports: setPorts(reqPort, subPort)
+    }
+    // Connection to the event bus server
+    , reqSocket = zeromq.socket('push')
     // The connected subs
     , subSockets = []
-    , self = {}
     , listeners = {}
-
-  self.ports = setPorts(reqPort, subPort)
 
   reqSocket.connect('tcp://' + ip + ':' + self.ports[0])
 
