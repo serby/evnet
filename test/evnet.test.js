@@ -1,3 +1,4 @@
+require('should')
 describe('evnet', function () {
 
   function rndPort() {

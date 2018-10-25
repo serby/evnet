@@ -15,7 +15,7 @@
     "url": "git@github.com:serby/evnet"
   },
   "files": [
-    "./evnet.js"
+    "evnet.js"
   ],
   "main": "./evnet.js",
   "scripts": {
