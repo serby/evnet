@@ -19,7 +19,7 @@
   ],
   "main": "./evnet.js",
   "scripts": {
-    "test": "mocha -r should -R spec",
+    "test": "mocha -r should -R spec --exit",
     "lint": "jshint .",
     "pretest": "npm run lint",
     "prepublish": "npm run lint && npm prune"
@@ -28,7 +28,7 @@
     "node": ">=4"
   },
   "dependencies": {
-    "zeromq": "^5.0.0"
+    "zeromq": "^5.1.0"
   },
   "devDependencies": {
     "jshint": "^2.9.6",
