@@ -28,7 +28,7 @@
     "node": ">=4"
   },
   "dependencies": {
-    "zeromq": "^5.0.0"
+    "zeromq": "^5.1.0"
   },
   "devDependencies": {
     "jshint": "^2.9.6",
