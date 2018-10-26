@@ -332,11 +332,11 @@ describe('evnet', function () {
         }
       }
 
-      e.once('HELLO', onMessage)
+      e.once('HELLO1', onMessage)
 
       // Emit 2 events
-      e.emit('HELLO')
-      e.emit('HELLO')
+      e.emit('HELLO1', 'world')
+      e.emit('HELLO1', 'world')
     })
     it('should only receive events once per binding', function (done) {
       var evnet = require('..')
