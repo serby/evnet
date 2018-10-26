@@ -78,12 +78,13 @@ function evnet(ip, reqPort, subPort) {
   // Listen to events broadcast from the server
   function on(eventName, fn) {
     if (listeners[eventName]) {
-      listeners[eventName].push(fn)
-      return
+      listeners[eventName].fns.push(fn)
+      return listeners[eventName].socket
     }
-    listeners[eventName] = [ fn ]
+
     // Create a sub for each eventName
     var subSocket = zeromq.socket('sub')
+    listeners[eventName] = { socket: subSocket, fns: [ fn ] }
     //  Track so we can close
     subSockets.push(subSocket)
     subSocket.connect('tcp://' + ip + ':' + self.ports[1])
@@ -95,7 +96,7 @@ function evnet(ip, reqPort, subPort) {
       } else {
         message = undefined
       }
-      listeners[eventName].forEach(function (fn) {
+      listeners[eventName].fns.forEach(function (fn) {
         fn(message)
       })
     })
@@ -110,7 +111,10 @@ function evnet(ip, reqPort, subPort) {
 
     function onceFn() {
       if (called === true) {
-        subSocket.close()
+        try {
+          subSocket.close()
+        } catch (e) {
+        }
         return
       }
       called = true

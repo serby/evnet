@@ -323,13 +323,13 @@ describe('evnet', function () {
         , e = evnet('0.0.0.0', port)
         , numberTimesEmitted = 0
 
-      server.on('close', function () {
-        numberTimesEmitted.should.equal(1)
-        done()
-      })
-
       function onMessage () {
         numberTimesEmitted += 1
+        if (numberTimesEmitted === 1) {
+          server.close()
+          e.close()
+          done()
+        }
       }
 
       e.once('HELLO', onMessage)
@@ -337,11 +337,29 @@ describe('evnet', function () {
       // Emit 2 events
       e.emit('HELLO')
       e.emit('HELLO')
+    })
+    it('should only receive events once per binding', function (done) {
+      var evnet = require('..')
+        , port = rndPort()
+        , server = evnet.start('0.0.0.0', port)
+        , e = evnet('0.0.0.0', port)
+        , numberTimesEmitted = 0
 
-      setTimeout(function () {
-        server.close()
-        e.close()
-      }, 500)
+      function onMessage () {
+        numberTimesEmitted += 1
+        if (numberTimesEmitted === 2) {
+          server.close()
+          e.close()
+          done()
+        }
+      }
+
+      e.once('HELLO', onMessage)
+      e.once('HELLO', onMessage)
+
+      // Emit 2 events
+      e.emit('HELLO')
+      e.emit('HELLO')
     })
   })
 
