@@ -2,7 +2,7 @@
 
 ZeroMQ based event dispatcher
 
-[![build status](https://secure.travis-ci.org/serby/evnet.png)](http://travis-ci.org/serby/evnet)
+[![build status](https://secure.travis-ci.org/serby/evnet.png)](http://travis-ci.org/serby/evnet) [![Greenkeeper badge](https://badges.greenkeeper.io/serby/evnet.svg)](https://greenkeeper.io/)
 
 ## Installation
 
